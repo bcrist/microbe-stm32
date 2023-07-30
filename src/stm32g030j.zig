@@ -1,7 +1,7 @@
 const microbe = @import("microbe");
 const core = microbe.core;
 pub usingnamespace @import("stm32g030/registers.zig");
-pub const gpio = @import("stm32/gpio.zig");
+pub const gpio = @import("gpio.zig");
 pub const uart = @import("stm32g030/uart.zig");
 pub const dma = @import("stm32g030/dma.zig");
 pub const clocks = @import("stm32g030/clocks.zig");

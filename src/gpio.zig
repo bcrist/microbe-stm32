@@ -1,6 +1,5 @@
 const std = @import("std");
-const microbe = @import("microbe");
-const chip = microbe.chip;
+const chip = @import("chip");
 
 pub const PadID = chip.PadID;
 pub const IOPort = chip.registers.types.gpio.IOPort;
