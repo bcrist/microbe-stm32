@@ -1026,6 +1026,12 @@ pub fn currentTick() microbe.Tick {
     return current_tick;
 }
 
+pub fn blockUntilTick(t: microbe.Tick) void {
+    while (current_tick.isBefore(t)) {
+        asm volatile ("" ::: "memory");
+    }
+}
+
 var microtick_base: i64 = 0;
 
 pub inline fn currentMicrotick() microbe.clock.Microtick {
@@ -1044,4 +1050,10 @@ pub inline fn currentMicrotick() microbe.clock.Microtick {
         raw +%= @as(u24, tick_reload + 1) -% val;
     }
     return .{ .raw = raw };
+}
+
+pub fn blockUntilMicrotick(t: microbe.Microtick) void {
+    while (currentMicrotick().isBefore(t)) {
+        asm volatile ("" ::: "memory");
+    }
 }
