@@ -1,11 +1,11 @@
 const std = @import("std");
 const registers = @import("registers.zig").registers;
 const microbe = @import("microbe");
-const main = microbe.main;
+const root = @import("root");
+const util = @import("chip_util");
 const rcc = registers.types.rcc;
-
-const fmtFrequency = microbe.clock.fmtFrequency;
-const divRound = microbe.clock.divRound;
+const fmtFrequency = util.fmtFrequency;
+const divRound = util.divRound;
 
 pub const Domain = enum {
     // oscillators:
@@ -152,6 +152,28 @@ const PowerRange = enum {
     mid_range, // "range 2"
     high_performance, // "range 1"
 };
+
+pub fn getConfig() ParsedConfig {
+    comptime {
+        @setEvalBranchQuota(10_000);
+        return if (@hasDecl(root, "clocks")) parseConfig(root.clocks) else reset_config;
+    }
+}
+
+pub fn getFrequency(comptime domain: Domain) comptime_int {
+    comptime {
+        @setEvalBranchQuota(10_000);
+        return @field(getConfig(), @tagName(domain) ++ "_frequency_hz");
+    }
+}
+
+pub fn getSource(comptime domain: Domain) ?Domain {
+    comptime {
+        const config = getConfig();
+        const field_name = @tagName(domain) ++ "_source";
+        return if (@hasDecl(config, field_name)) @field(config, field_name) else null;
+    }
+}
 
 pub const reset_config = parseConfig(.{
     .hsi_enabled = true,
@@ -323,7 +345,7 @@ pub fn parseConfig(comptime config: Config) ParsedConfig {
             parsed.tick_frequency_hz = actual_freq;
             parsed.tick_reload = clocks_per_interrupt - 1;
 
-            if (!@hasDecl(microbe.main, "interrupts") or !@hasDecl(microbe.main.interrupts, "SysTick")) {
+            if (!@hasDecl(root, "interrupts") or !@hasDecl(root.interrupts, "SysTick")) {
                 @compileError("SysTick interrupt handler not found; microbe.clock.handleTickInterrupt() must be called");
             }
         }
@@ -996,6 +1018,12 @@ pub inline fn handleTickInterrupt() void {
         microbe.clock.current_tick.raw +%= 1;
         microtick_base +%= microbe.clock.getConfig().tick_reload + 1;
     }
+}
+
+var current_tick: microbe.Tick = .{ .raw = 0 };
+
+pub fn currentTick() microbe.Tick {
+    return current_tick;
 }
 
 var microtick_base: i64 = 0;
