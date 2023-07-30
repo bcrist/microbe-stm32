@@ -13,10 +13,11 @@ pub fn build(b: *std.Build) void {
     const m0plus_core_module = microbe_arm_dep.module("m0plus");
     for (m0plus_chips) |name| {
         _ = b.addModule(name, .{
-            .source_file = .{ .path = "src/" ++ name ++ ".zig" },
+            .source_file = .{
+                .path = std.fmt.allocPrint(b.allocator, "src/{s}.zig", .{ name }) catch unreachable,
+            },
             .dependencies = &.{
-                .name = "core",
-                .module = m0plus_core_module,
+                .{ .name = "core", .module = m0plus_core_module },
             },
         });
     }

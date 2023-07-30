@@ -1,0 +1,10 @@
+.{
+    .name = "microbe-stm32",
+    .version = "0.0.0",
+    .dependencies = .{
+        .@"microbe-arm" = .{
+            .url = "https://github.com/bcrist/microbe-arm/archive/fd59fcbe5450bc2608a72489d3e6b12e1387c26a.tar.gz",
+            .hash = "1220e1681796d2a092353b5db67190b498d87077d5178327e4b7704cce1a7a1fb3a5",
+        },
+    },
+}
