@@ -11,15 +11,11 @@ pub const TerminationMode = chip.registers.types.gpio.TerminationMode;
 pub const PortDataType = u16;
 
 pub fn getOffset(comptime pad: PadID) comptime_int {
-    comptime {
-        return std.fmt.parseInt(u4, @tagName(pad)[2..], 10) catch unreachable;
-    }
+    return comptime std.fmt.parseInt(u4, @tagName(pad)[2..], 10) catch unreachable;
 }
 
 pub fn getIOPort(comptime pad: PadID) IOPort {
-    comptime {
-        return @field(IOPort, @tagName(pad)[1..2]);
-    }
+    return comptime @field(IOPort, @tagName(pad)[1..2]);
 }
 
 pub fn getIOPorts(comptime pads: []const PadID) []const IOPort {
@@ -125,8 +121,8 @@ pub fn configureAsAlternateFunction(comptime pads: []const PadID, comptime afs: 
         if (afrl_pads.len > 0) {
             var v = port_regs.AFRL.read();
             inline for (pads, 0..) |pad, i| {
-                const pad_port = getIOPort(pad);
-                const pad_offset = getOffset(pad);
+                const pad_port = comptime getIOPort(pad);
+                const pad_offset = comptime getOffset(pad);
                 if (pad_port == port and pad_offset >= 0 and pad_offset <= 7) {
                     const AFType = @field(chip.registers.types.gpio, @tagName(pad) ++ "_AF");
                     @field(v, "AFSEL" ++ @tagName(pad)[2..]) = std.enums.nameCast(AFType, afs[i]);
@@ -137,8 +133,8 @@ pub fn configureAsAlternateFunction(comptime pads: []const PadID, comptime afs: 
         if (afrh_pads.len > 0) {
             var v = port_regs.AFRH.read();
             inline for (pads, 0..) |pad, i| {
-                const pad_port = getIOPort(pad);
-                const pad_offset = getOffset(pad);
+                const pad_port = comptime getIOPort(pad);
+                const pad_offset = comptime getOffset(pad);
                 if (pad_port == port and pad_offset >= 8 and pad_offset <= 15) {
                     const AFType = @field(chip.registers.types.gpio, @tagName(pad) ++ "_AF");
                     @field(v, "AFSEL" ++ @tagName(pad)[2..]) = std.enums.nameCast(AFType, afs[i]);
@@ -151,7 +147,7 @@ pub fn configureAsAlternateFunction(comptime pads: []const PadID, comptime afs: 
 }
 
 pub fn isOutput(comptime pad: PadID) bool {
-    const port = getIOPort(pad);
+    const port = comptime getIOPort(pad);
     var v = @field(chip.registers, "GPIO" ++ @tagName(port)).MODER.read();
     return @field(v, "MODER" ++ @tagName(pad)[2..]) == .output;
 }

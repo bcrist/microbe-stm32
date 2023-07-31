@@ -1,6 +1,6 @@
 const std = @import("std");
 const microbe = @import("microbe");
-const chip = microbe.chip;
+const chip = @import("chip");
 const dma = chip.dma;
 
 const PadID = chip.PadID;
@@ -246,7 +246,7 @@ pub fn Impl(comptime config: Config) type {
 
             chip.gpio.configureAsAlternateFunction(pads, afs);
 
-            const ker_clk = microbe.clock.getFrequency(.usart);
+            const ker_clk = chip.clocks.getFrequency(.usart);
             const raw_brr = @divTrunc(ker_clk + config.baud_rate / 2, config.baud_rate);
 
             // TODO Do some checks to see if the baud rate is too high (or perhaps too low)

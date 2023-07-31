@@ -1050,7 +1050,7 @@ pub inline fn currentMicrotick() microbe.Microtick {
     if (val > 0) {
         raw +%= @as(u24, tick_reload + 1) -% val;
     }
-    return .{ .raw = raw };
+    return @enumFromInt(raw);
 }
 
 pub fn blockUntilMicrotick(t: microbe.Microtick) void {
