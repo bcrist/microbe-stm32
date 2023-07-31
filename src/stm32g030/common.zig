@@ -5,6 +5,7 @@ const registers = @import("registers.zig");
 const clocks = @import("clocks.zig");
 const VectorTable = registers.VectorTable;
 const InterruptType = registers.InterruptType;
+const InterruptVector = registers.InterruptVector;
 
 // This comes from the linker and indicates where the stack segment ends, which
 // is where the initial stack pointer should be.  It's not a function, but by
