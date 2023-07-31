@@ -2,6 +2,7 @@ const std = @import("std");
 const registers = @import("registers.zig").registers;
 const microbe = @import("microbe");
 const root = @import("root");
+const chip = @import("chip");
 const util = @import("chip_util");
 const rcc = registers.types.rcc;
 const fmtFrequency = util.fmtFrequency;
@@ -346,7 +347,7 @@ pub fn parseConfig(comptime config: Config) ParsedConfig {
             parsed.tick_reload = clocks_per_interrupt - 1;
 
             if (!@hasDecl(root, "interrupts") or !@hasDecl(root.interrupts, "SysTick")) {
-                @compileError("SysTick interrupt handler not found; microbe.clock.handleTickInterrupt() must be called");
+                @compileError("SysTick interrupt handler not found; chip.clocks.handleTickInterrupt() must be called");
             }
         }
 
@@ -1015,8 +1016,8 @@ pub fn init(comptime config: Config) void {
 
 pub inline fn handleTickInterrupt() void {
     if (registers.SCS.SysTick.CTRL.read().COUNTFLAG != 0) {
-        microbe.clock.current_tick.raw +%= 1;
-        microtick_base +%= microbe.clock.getConfig().tick_reload + 1;
+        current_tick.raw +%= 1;
+        microtick_base +%= getConfig().tick_reload + 1;
     }
 }
 
@@ -1034,15 +1035,15 @@ pub fn blockUntilTick(t: microbe.Tick) void {
 
 var microtick_base: i64 = 0;
 
-pub inline fn currentMicrotick() microbe.clock.Microtick {
-    const tick_reload = microbe.clock.getConfig().tick_reload;
-    var cs = microbe.interrupts.enterCriticalSection();
+pub inline fn currentMicrotick() microbe.Microtick {
+    const tick_reload = getConfig().tick_reload;
+    var cs = chip.interrupts.enterCriticalSection();
     defer cs.leave();
 
     var val = registers.SCS.SysTick.VAL.read().CURRENT;
     if (registers.SCS.SysTick.CTRL.read().COUNTFLAG != 0) {
         val = registers.SCS.SysTick.VAL.read().CURRENT;
-        microbe.clock.current_tick.raw +%= 1;
+        current_tick.raw +%= 1;
         microtick_base +%= tick_reload + 1;
     }
     var raw = microtick_base;

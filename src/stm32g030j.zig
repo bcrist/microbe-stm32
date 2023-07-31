@@ -1,13 +1,13 @@
 const microbe = @import("microbe");
-pub const core = @import("core");
 pub usingnamespace @import("stm32g030/registers.zig");
 pub const gpio = @import("gpio.zig");
 pub const uart = @import("stm32g030/uart.zig");
 pub const dma = @import("stm32g030/dma.zig");
 pub const clocks = @import("stm32g030/clocks.zig");
-pub const interrupts = core.interrupts;
+pub const interrupts = @import("interrupts.zig");
 
 pub const base_name = "STM32G030J";
+pub const core_name = "ARM Cortex-M0+";
 
 pub const PadID = enum {
     PA0, // pin 4, pad bonded with PA1, PA2, ~RST
