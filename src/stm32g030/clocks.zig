@@ -1021,7 +1021,7 @@ pub fn handleTickInterrupt() callconv(.C) void {
     }
 }
 
-var current_tick: microbe.Tick = .{ .raw = 0 };
+var current_tick: microbe.Tick = @enumFromInt(0);
 
 pub inline fn currentTick() microbe.Tick {
     return current_tick;
