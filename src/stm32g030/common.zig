@@ -55,11 +55,6 @@ export fn _start() align(4) callconv(.C) noreturn {
     microbe.hang();
 }
 
-
-comptime {
-    @export(microbe.start, .{ .name = "start" });
-}
-
 export const vector_table: VectorTable linksection(".vector_table") = blk: {
     var tmp: VectorTable = .{
         .initial_stack_pointer = _stack_end,

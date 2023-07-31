@@ -1,10 +1,10 @@
-const microbe = @import("microbe");
+const common = @import("common.zig");
 pub usingnamespace @import("stm32g030/registers.zig");
 pub const gpio = @import("gpio.zig");
+pub const interrupts = @import("interrupts.zig");
 pub const uart = @import("stm32g030/uart.zig");
 pub const dma = @import("stm32g030/dma.zig");
 pub const clocks = @import("stm32g030/clocks.zig");
-pub const interrupts = @import("interrupts.zig");
 
 pub const base_name = "STM32G030J";
 pub const core_name = "ARM Cortex-M0+";
