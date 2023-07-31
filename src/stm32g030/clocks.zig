@@ -2,11 +2,11 @@ const std = @import("std");
 const registers = @import("registers.zig").registers;
 const microbe = @import("microbe");
 const root = @import("root");
-const chip = @import("chip");
 const util = @import("chip_util");
 const rcc = registers.types.rcc;
 const fmtFrequency = util.fmtFrequency;
 const divRound = util.divRound;
+const CriticalSection = microbe.CriticalSection;
 
 pub const Domain = enum {
     // oscillators:
@@ -347,7 +347,7 @@ pub fn parseConfig(comptime config: Config) ParsedConfig {
             parsed.tick_reload = clocks_per_interrupt - 1;
 
             if (!@hasDecl(root, "interrupts") or !@hasDecl(root.interrupts, "SysTick")) {
-                @compileError("SysTick interrupt handler not found; chip.clocks.handleTickInterrupt() must be called");
+                @compileError("SysTick interrupt handler not found; chip.clock.handleTickInterrupt() must be called");
             }
         }
 
@@ -1014,16 +1014,16 @@ pub fn init(comptime config: Config) void {
     }
 }
 
-pub inline fn handleTickInterrupt() void {
+pub fn handleTickInterrupt() callconv(.C) void {
     if (registers.SCS.SysTick.CTRL.read().COUNTFLAG != 0) {
-        current_tick.raw +%= 1;
+        current_tick = @enumFromInt(@intFromEnum(current_tick) +% 1);
         microtick_base +%= getConfig().tick_reload + 1;
     }
 }
 
 var current_tick: microbe.Tick = .{ .raw = 0 };
 
-pub fn currentTick() microbe.Tick {
+pub inline fn currentTick() microbe.Tick {
     return current_tick;
 }
 
@@ -1037,13 +1037,13 @@ var microtick_base: i64 = 0;
 
 pub inline fn currentMicrotick() microbe.Microtick {
     const tick_reload = getConfig().tick_reload;
-    var cs = chip.interrupts.enterCriticalSection();
+    var cs = CriticalSection.enter();
     defer cs.leave();
 
     var val = registers.SCS.SysTick.VAL.read().CURRENT;
     if (registers.SCS.SysTick.CTRL.read().COUNTFLAG != 0) {
         val = registers.SCS.SysTick.VAL.read().CURRENT;
-        current_tick.raw +%= 1;
+        current_tick = @enumFromInt(@intFromEnum(current_tick) +% 1);
         microtick_base +%= tick_reload + 1;
     }
     var raw = microtick_base;
